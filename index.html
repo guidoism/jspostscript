@@ -36,17 +36,8 @@
 
     </head>
     <body>
-	<div id="content">
-
-		<div id="outline-container-1" class="outline-1">
-		    <div class="outline-text-1" id="text-1">
-
-
-
-
-			<div id="wps" style="display:none">
-
-			    <pre class="src src-text">
+	<div id="wps" style="display:none">
+	    <pre class="src src-text">
 %%% (c) 2009 Tomas Hlavaty
 
 currentdict/systemdict currentdict put
@@ -427,30 +418,20 @@ false .strictBind
 
 /userdict 1000 dict def
 userdict begin
-			    </pre>
-
-
-
-			</div>
-
-			<style>canvas {width:500px;height:500px;border:1px dashed black}</style>
-			<script type="text/javascript" src="wps.js"></script>
-			<script>
-			 function $(Id) {return document.getElementById(Id);}
-			 function $$(Id) {return $(Id).textContent;}
-			</script>
-			<canvas id="xsandbox"></canvas>
-		    </div>
-		</div>
+	    </pre>
 	</div>
-	</div>
-
-
+	<style>canvas {width:500px;height:500px;border:1px dashed black}</style>
+	<script type="text/javascript" src="wps.js"></script>
+	<script>
+	 function $(Id) {return document.getElementById(Id);}
+	 function $$(Id) {return $(Id).textContent;}
+	</script>
+	<canvas id="xsandbox"></canvas>
 	<div id="editor">
 /n 10 def
 /w 25 def
 
-0 0 n w mul dup .gbox
+0 0 500 500 .gbox
 
 4 dict begin
   0 1 n 1 sub {
@@ -464,6 +445,9 @@ userdict begin
     } for
   } for
 end
+
+
+
 	</div>
 	
 	<script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>

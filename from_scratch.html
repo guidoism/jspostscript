@@ -14,20 +14,22 @@
      $(canvas).attr('height', canvasHeight * window.devicePixelRatio);
      $(canvas).css('width', canvasCssWidth);
      $(canvas).css('height', canvasCssHeight);
-     c.scale(window.devicePixelRatio, window.devicePixelRatio);               
+     c.scale(window.devicePixelRatio, window.devicePixelRatio);
  }
 
- c.font = '48px Minion Pro';
- //c.fillText('The ffjord', 10, 50);
-
- var stack = [50, 10, 'The fjord find.']
- var pop = function() { return stack.pop() };
-
- var code = {
-     "show": function() { c.fillText(pop(), pop(), pop()) },
- };
-
- code["show"]();
  
+ $( document ).ready(function() {
+     console.log( "ready!" );
+     c.font = '48px Minion Pro';
+     
+     var stack = [50, 10, 'The fjord find.']
+     var pop = function() { return stack.pop() };
+
+     var code = {
+	 "show": function() { c.fillText(pop(), pop(), pop()) },
+     };
+
+     code["show"]();
+ });
 </script>
 	

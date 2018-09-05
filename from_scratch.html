@@ -1,0 +1,33 @@
+<canvas id="canvas" width="500" height="500"></canvas>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/voca/1.4.0/voca.min.js"></script>
+<script>
+ var canvas = document.getElementById('canvas');
+ var c = canvas.getContext('2d');
+
+ if (window.devicePixelRatio) {
+     var canvasWidth = $(canvas).attr('width');
+     var canvasHeight = $(canvas).attr('height');
+     var canvasCssWidth = canvasWidth;
+     var canvasCssHeight = canvasHeight;
+     $(canvas).attr('width', canvasWidth * window.devicePixelRatio);
+     $(canvas).attr('height', canvasHeight * window.devicePixelRatio);
+     $(canvas).css('width', canvasCssWidth);
+     $(canvas).css('height', canvasCssHeight);
+     c.scale(window.devicePixelRatio, window.devicePixelRatio);               
+ }
+
+ c.font = '48px Minion Pro';
+ //c.fillText('The ffjord', 10, 50);
+
+ var stack = [50, 10, 'The fjord find.']
+ var pop = function() { return stack.pop() };
+
+ var code = {
+     "show": function() { c.fillText(pop(), pop(), pop()) },
+ };
+
+ code["show"]();
+ 
+</script>
+	

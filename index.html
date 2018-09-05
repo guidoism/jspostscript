@@ -296,6 +296,7 @@ initmatrix
 /sethsbcolor{setrgbcolor}.bdef % TODO
 /clippath{0 0 .gcanvas(width)get .gcanvas(height)get .rect}.bdef % TODO
 /show{currentpoint 3 2 roll 3 copy .fillText .strokeText}.bdef % TODO
+/guido{guidodraw}.bdef
 
 /rlineto{.getTmd .xy /.$py load add exch /.$px load add exch .getTmd .minv .xy lineto}.bdef
 /curveto{2 copy .setPoint 2 copy .setPath .resetTmd .bezierCurveTo}.bdef
@@ -446,6 +447,14 @@ userdict begin
   } for
 end
 
+2 setlinewidth
+200 200 newpath moveto
+300 300 lineto
+300 400 lineto
+200 400 lineto
+0 setgray
+stroke
+
 
 
 	</div>
@@ -460,10 +469,20 @@ end
 	     bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
 	     exec: function(editor) {
 		 (new Wps).parse($$("wps"), "(xsandbox) .setGc", editor.getValue());
-	     },
+ // TODO: Add a cursor image to show current location of point
+ // TODO: Rerun it on every enter (but also add the newline)
+ // TODO: Create a slow-mo mode
+},
 	     readOnly: true
 	 });
-	</script>
+
+function guidodraw() {
+  var ctx = document.getElementById('xsandbox').getContext('2d');
+  ctx.font = '48px serif';
+  ctx.fillText('Hello world', 10, 50);
+}
+
+</script>
 
 
     </body>

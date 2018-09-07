@@ -67,18 +67,12 @@ Postscript {
 	 number: e => ostack.push(e.sourceString),
 	 string: (left, e, right) => ostack.push(e.sourceString),
      })
-     semantics(parser.match('100 99 moveto')).eval()
-     console.log(`${_x}, ${_y}`)
-     console.log(semantics(parser.match('(this is a string.)')).eval())
-     console.log(ostack)
-     console.log(semantics(parser.match('show')).eval())
-     console.log(ostack)
      
      var editor = ace.edit("editor");
      editor.setTheme("ace/theme/solarized_dark");
      editor.session.setMode("ace/mode/forth");
      editor.commands.addCommand({
-	 name: 'myCommand',
+	 name: 'Run',
 	 bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
 	 exec: function(editor) {
 	     var lines = editor.session.getDocument().getLines(0, 1);

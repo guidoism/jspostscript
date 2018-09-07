@@ -9,7 +9,7 @@
 </style>
 
 <canvas id="canvas" width="700" height="500"></canvas>
-<div id="editor">    5 100 moveto
+<div id="editor">    5 200 moveto
     (The fox went to find the fjord.) show
 </div>
 
@@ -36,7 +36,8 @@
 
  let parser = ohm.grammar(`
 Postscript {
-  Exp             = word | operator | number | string
+  Exp             = Pexp+
+  Pexp            = word | operator | number | string
   word            = "/" letter+
   operator        = letter+
   number          = digit+
@@ -46,8 +47,6 @@ Postscript {
 }
  `);
 
- console.log(parser.match('(this is a string.)'))
- 
  $( document ).ready(function() {
      c.font = '48px Minion Pro';
 
@@ -55,12 +54,26 @@ Postscript {
      var _y = 0;
      var ostack = [];
      var pop = function() { return ostack.pop() };
-
      var code = {
 	 "show": function(x, y) { c.fillText(pop(), x, y); },
 	 "moveto": function(x, y) { _y = pop(); _x = pop(); },
      };
 
+     let semantics = parser.createSemantics()
+     semantics.addOperation('eval', {
+	 Exp: e => e.eval(),
+	 word: (left, right) => ostack.push(left.eval() + right.eval()),
+	 operator: e => code[e.sourceString](_x, _y),
+	 number: e => ostack.push(e.sourceString),
+	 string: (left, e, right) => ostack.push(e.sourceString),
+     })
+     semantics(parser.match('100 99 moveto')).eval()
+     console.log(`${_x}, ${_y}`)
+     console.log(semantics(parser.match('(this is a string.)')).eval())
+     console.log(ostack)
+     console.log(semantics(parser.match('show')).eval())
+     console.log(ostack)
+     
      var editor = ace.edit("editor");
      editor.setTheme("ace/theme/solarized_dark");
      editor.session.setMode("ace/mode/forth");
@@ -69,39 +82,7 @@ Postscript {
 	 bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
 	 exec: function(editor) {
 	     var lines = editor.session.getDocument().getLines(0, 1);
-	     //console.log(lines)
-	     for (let s of lines) {
-		 s = v.trim(s);
-		 if (v.isBlank(s)) { console.log('Skipping'); continue }
-
-		 console.log('Parsing: "' + s + '"')
-		 var t = ''
-		 let state = 0;
-		 let parens = 0;
-		 for (let c of s) {
-		     //console.log('parens ' + parens)
-		     if (c === '(') { parens = parens + 1; continue }
-		     if (c === ')') {
-			 parens = parens - 1
-			 ostack.push(t)
-			 t = ''
-			 continue
-		     }
-		     if (parens > 0) { t = t + c; }
-		     else {
-			 if (v.isBlank(c) && !v.isBlank(t)) { console.log('defining: "' + t + '"'); ostack.push(t); t = '' }
-			 if (v.isDigit(c)) { t = t + c; state = 1 }
-			 if (v.isAlpha(c)) { t = t + c; state = 2 }
-		     }
-		 }
-
-		 console.log(v.sprintf('x = %d, y = %d', _x, _y))
-		 console.log('Stack: ' + ostack)
-		 console.log('Code: ' + code[t])
-		 // TODO make sure there's nothing blank in the stack
-		 code[t](_x, _y)
-	     }
-
+	     lines.map(s => semantics(parser.match(s)).eval())
 	 },
 	 readOnly: true
      });

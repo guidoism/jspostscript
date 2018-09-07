@@ -16,6 +16,7 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/voca/1.4.0/voca.min.js"></script>
 <script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://unpkg.com/ohm-js@0.13.1/dist/ohm.min.js"></script>
 
 <script>
  var canvas = document.getElementById('canvas');
@@ -33,6 +34,20 @@
      c.scale(window.devicePixelRatio, window.devicePixelRatio);
  }
 
+ let parser = ohm.grammar(`
+Postscript {
+  Exp             = word | operator | number | string
+  word            = "/" letter+
+  operator        = letter+
+  number          = digit+
+  string          = "(" not_right_paren+ ")"
+  not_right_paren = escaped_paren | ~")" any
+  escaped_paren   = "\\\\" ")"
+}
+ `);
+
+ console.log(parser.match('(this is a string.)'))
+ 
  $( document ).ready(function() {
      c.font = '48px Minion Pro';
 

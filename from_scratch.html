@@ -94,11 +94,13 @@ Postscript {
 	 name: 'Run',
 	 bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
 	 exec: function(editor) {
-	     let lines = editor.session.getDocument().getAllLines();
+ 	     let lines = editor.session.getDocument().getAllLines();
 	     lines.map(s => semantics(parser.match(s)).eval())
 	 },
 	 readOnly: true
      });
+     let lines = editor.session.getDocument().getAllLines();
+     lines.map(s => semantics(parser.match(s)).eval())
 
  });
 </script>

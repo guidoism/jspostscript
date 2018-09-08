@@ -87,14 +87,14 @@ Postscript {
 	 string: (left, e, right) => ostack.push(e.sourceString),
      })
      
-     var editor = ace.edit("editor");
+     let editor = ace.edit("editor");
      editor.setTheme("ace/theme/solarized_dark");
      editor.session.setMode("ace/mode/forth");
      editor.commands.addCommand({
 	 name: 'Run',
 	 bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
 	 exec: function(editor) {
-	     var lines = editor.session.getDocument().getAllLines();
+	     let lines = editor.session.getDocument().getAllLines();
 	     lines.map(s => semantics(parser.match(s)).eval())
 	 },
 	 readOnly: true

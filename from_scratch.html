@@ -56,11 +56,11 @@ Postscript {
  $( document ).ready(function() {
      c.font = '48px Minion Pro';
 
-     var _x = 0;
-     var _y = 0;
-     var ostack = [];
-     var pop = function() { return ostack.pop() };
-     var code = {
+     let _x = 0;
+     let _y = 0;
+     let ostack = [];
+     let pop = function() { return ostack.pop() };
+     let code = {
 	 // Canvas doesn't provide the ability to draw text along a
 	 // curve so we need to implement basic text another way and
 	 // just not support curved text yet.

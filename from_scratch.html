@@ -38,6 +38,11 @@
      $(canvas).css('width', canvasCssWidth);
      $(canvas).css('height', canvasCssHeight);
      c.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+     // Trying to change to Cartesian coordinates, the following works
+     // except that the text is upside down and reverse:
+     // 
+     // c.transform(1, 0, 0, -1, 0, canvas.height)
  }
 
  let parser = ohm.grammar(`

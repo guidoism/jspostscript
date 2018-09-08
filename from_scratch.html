@@ -76,12 +76,14 @@ Postscript {
 	 lineto: () => c.lineTo(pop(), pop()),
 	 pop: () => pop(),
 	 exch: () => { o = o.concat(o.splice(o.length-2).reverse()) },
-	 dup: () => o.push(o[o.length-1])
+	 dup: () => o.push(o[o.length-1]),
+	 copy: () => { let n = pop(); o = o.concat(o.slice(o.length-n)) },
      };
 
      o = [1, 2, 3, 4]; code['pop'](); console.log(o)
      o = [1, 2, 3, 4]; code['exch'](); console.log(o)
      o = [1, 2, 3, 4]; code['dup'](); console.log(o)
+     o = [1, 2, 3, 4, 3]; code['copy'](); console.log(o)
 
      ////////////////////////////////////////////////////////////////
      

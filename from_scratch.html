@@ -17,8 +17,7 @@
     91 91 lineto
     1 91 lineto
     1  1 lineto
-    stroke
-</div>
+    stroke</div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/voca/1.4.0/voca.min.js"></script>
@@ -65,11 +64,11 @@ Postscript {
 	 // Canvas doesn't provide the ability to draw text along a
 	 // curve so we need to implement basic text another way and
 	 // just not support curved text yet.
-	 show: (x, y) => c.fillText(pop(), x, y),
-	 moveto: (x, y) => { _y = pop(); _x = pop(); c.moveTo(_x, _y) },
-	 newpath: (x, y) => c.beginPath(),
-	 stroke: (x, y) => c.stroke(),
-	 lineto: (x, y) => c.lineTo(pop(), pop()),
+	 show: () => c.fillText(pop(), _x, _y),
+	 moveto: () => { _y = pop(); _x = pop(); c.moveTo(_x, _y) },
+	 newpath: () => c.beginPath(),
+	 stroke: () => c.stroke(),
+	 lineto: () => c.lineTo(pop(), pop()),
      };
 
      function call(e) {

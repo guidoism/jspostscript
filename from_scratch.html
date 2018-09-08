@@ -11,6 +11,13 @@
 <canvas id="canvas" width="700" height="500"></canvas>
 <div id="editor">    5 200 moveto
     (The fox went to find the fjord.) show
+    newpath
+    1  1 moveto
+    91  1 lineto
+    91 91 lineto
+    1 91 lineto
+    1  1 lineto
+    stroke
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -55,15 +62,28 @@ Postscript {
      var ostack = [];
      var pop = function() { return ostack.pop() };
      var code = {
-	 "show": function(x, y) { c.fillText(pop(), x, y); },
-	 "moveto": function(x, y) { _y = pop(); _x = pop(); },
+	 // Canvas doesn't provide the ability to draw text along a
+	 // curve so we need to implement basic text another way and
+	 // just not support curved text yet.
+	 show: (x, y) => c.fillText(pop(), x, y),
+	 moveto: (x, y) => { _y = pop(); _x = pop(); c.moveTo(_x, _y) },
+	 newpath: (x, y) => c.beginPath(),
+	 stroke: (x, y) => c.stroke(),
+	 lineto: (x, y) => c.lineTo(pop(), pop()),
      };
 
+     function call(e) {
+	 if (code[e.sourceString])
+	     code[e.sourceString](_x, _y)
+	 else
+	     console.log(`Operator ${e.sourceString} not defined`)
+     }
+     
      let semantics = parser.createSemantics()
      semantics.addOperation('eval', {
 	 Exp: e => e.eval(),
 	 word: (left, right) => ostack.push(left.eval() + right.eval()),
-	 operator: e => code[e.sourceString](_x, _y),
+	 operator: e => call(e),
 	 number: e => ostack.push(e.sourceString),
 	 string: (left, e, right) => ostack.push(e.sourceString),
      })
@@ -75,7 +95,7 @@ Postscript {
 	 name: 'Run',
 	 bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
 	 exec: function(editor) {
-	     var lines = editor.session.getDocument().getLines(0, 1);
+	     var lines = editor.session.getDocument().getAllLines();
 	     lines.map(s => semantics(parser.match(s)).eval())
 	 },
 	 readOnly: true

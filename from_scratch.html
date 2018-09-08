@@ -63,8 +63,8 @@ Postscript {
 
      let _x = 0;
      let _y = 0;
-     let ostack = [];
-     let pop = function() { return ostack.pop() };
+     let o = [];
+     let pop = () => { return o.pop() };
      let code = {
 	 // Canvas doesn't provide the ability to draw text along a
 	 // curve so we need to implement basic text another way and
@@ -74,8 +74,17 @@ Postscript {
 	 newpath: () => c.beginPath(),
 	 stroke: () => c.stroke(),
 	 lineto: () => c.lineTo(pop(), pop()),
+	 pop: () => pop(),
+	 exch: () => { o = o.concat(o.splice(o.length-2).reverse()) },
+	 dup: () => o.push(o[o.length-1])
      };
 
+     o = [1, 2, 3, 4]; code['pop'](); console.log(o)
+     o = [1, 2, 3, 4]; code['exch'](); console.log(o)
+     o = [1, 2, 3, 4]; code['dup'](); console.log(o)
+
+     ////////////////////////////////////////////////////////////////
+     
      function call(e) {
 	 if (code[e.sourceString])
 	     code[e.sourceString](_x, _y)
@@ -86,10 +95,10 @@ Postscript {
      let semantics = parser.createSemantics()
      semantics.addOperation('eval', {
 	 Exp: e => e.eval(),
-	 word: (left, right) => ostack.push(left.eval() + right.eval()),
+	 word: (left, right) => o.push(left.eval() + right.eval()),
 	 operator: e => call(e),
-	 number: e => ostack.push(e.sourceString),
-	 string: (left, e, right) => ostack.push(e.sourceString),
+	 number: e => o.push(e.sourceString),
+	 string: (left, e, right) => o.push(e.sourceString),
      })
      
      let editor = ace.edit("editor");

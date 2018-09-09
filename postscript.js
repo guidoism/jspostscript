@@ -24,6 +24,7 @@ let code = {
     index: () => { let n = pop(); o.push(o[o.length - n - 1]) },
     // TODO: roll
     clear: () => o.length = 0,
+    count: () => o.push(o.length),
     
     curveto: () => c.bezierCurveTo(pop(), pop(), pop(), pop(), pop(), pop()),
     closepath: () => c.closePath(),
@@ -78,3 +79,4 @@ run('1 2 3 4 dup', [1, 2, 3, 4, 4])
 run('1 2 3 4 3 copy', [1, 2, 3, 4, 2, 3, 4])
 run('1 2 3 4 3 index', [1, 2, 3, 4, 1])
 run('1 2 3 4 clear', [])
+run('1 1 1 1 count', [1, 1, 1, 1, 4])

@@ -1,0 +1,15 @@
+Postscript {
+  Program = Exp+
+  Exp = PriExp | word | operator | string
+  PriExp
+    = "-" PriExp -- neg
+    | number
+  number
+    = digit* "." digit+  -- fract
+    | digit+             -- whole
+  word            = "/" letter+
+  operator        = letter+
+  string          = "(" not_right_paren+ ")"
+  not_right_paren = escaped_paren | ~")" any
+  escaped_paren   = "\\\\" ")"
+}

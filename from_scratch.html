@@ -11,6 +11,9 @@
 <canvas id="canvas" width="700" height="500"></canvas>
 <div id="editor">    5 200 moveto
     (The fox went to find the fjord.) show
+    newpath 0 0 moveto
+    0 37.79527 56.6929 -37.79527 56.6929 0 curveto
+    56.6929 37.79527 0 -37.79527 0 0 curveto closepath stroke
     newpath
     1  1 moveto
     91  1 lineto
@@ -48,10 +51,13 @@
  let parser = ohm.grammar(`
 Postscript {
   Exp             = Pexp+
-  Pexp            = word | operator | number | string
+  Pexp            = word | operator | negnumber | string
+  negnumber       = "-" number -- negative
+                  | number
+  number          = digit* "." digit+  -- fract
+                  | digit+
   word            = "/" letter+
   operator        = letter+
-  number          = digit+
   string          = "(" not_right_paren+ ")"
   not_right_paren = escaped_paren | ~")" any
   escaped_paren   = "\\\\" ")"
@@ -78,12 +84,14 @@ Postscript {
 	 exch: () => { o = o.concat(o.splice(o.length-2).reverse()) },
 	 dup: () => o.push(o[o.length-1]),
 	 copy: () => { let n = pop(); o = o.concat(o.slice(o.length-n)) },
+	 curveto: () => c.bezierCurveTo(pop(), pop(), pop(), pop(), pop(), pop()),
+	 closepath: () => c.closePath(),
      };
 
-     o = [1, 2, 3, 4]; code['pop'](); console.log(o)
-     o = [1, 2, 3, 4]; code['exch'](); console.log(o)
-     o = [1, 2, 3, 4]; code['dup'](); console.log(o)
-     o = [1, 2, 3, 4, 3]; code['copy'](); console.log(o)
+     //o = [1, 2, 3, 4]; code['pop'](); console.log(o)
+     //o = [1, 2, 3, 4]; code['exch'](); console.log(o)
+     //o = [1, 2, 3, 4]; code['dup'](); console.log(o)
+     //o = [1, 2, 3, 4, 3]; code['copy'](); console.log(o)
 
      ////////////////////////////////////////////////////////////////
      
@@ -93,15 +101,20 @@ Postscript {
 	 else
 	     console.log(`Operator ${e.sourceString} not defined`)
      }
-     
+
      let semantics = parser.createSemantics()
      semantics.addOperation('eval', {
 	 Exp: e => e.eval(),
 	 word: (left, right) => o.push(left.eval() + right.eval()),
 	 operator: e => call(e),
+	 negnumber_negative: (left, right) => o.push(left + right.eval()),
+	 negnumber_positive: e => o.push(e.eval()),
 	 number: e => o.push(e.sourceString),
 	 string: (left, e, right) => o.push(e.sourceString),
      })
+
+     let out = semantics(parser.match("-1")).eval()
+     console.log(`GUIDO: ${o}`)
      
      let editor = ace.edit("editor");
      editor.setTheme("ace/theme/solarized_dark");

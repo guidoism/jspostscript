@@ -21,6 +21,8 @@ let code = {
     exch: () => { o = o.concat(o.splice(o.length-2).reverse()) },
     dup: () => o.push(o[o.length-1]),
     copy: () => { let n = pop(); o = o.concat(o.slice(o.length-n)) },
+    index: () => { let n = pop(); o.push(o[o.length - n - 1]) },
+    
     curveto: () => c.bezierCurveTo(pop(), pop(), pop(), pop(), pop(), pop()),
     closepath: () => c.closePath(),
 };
@@ -72,4 +74,4 @@ run('1 2 3 4 pop', [1, 2, 3])
 run('1 2 3 4 exch', [1, 2, 4, 3])
 run('1 2 3 4 dup', [1, 2, 3, 4, 4])
 run('1 2 3 4 3 copy', [1, 2, 3, 4, 2, 3, 4])
-run('1 2 3 4 4 index', [1])
+run('1 2 3 4 3 index', [1, 2, 3, 4, 1])

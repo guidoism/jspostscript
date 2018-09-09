@@ -7,26 +7,25 @@ let parser = ohm.grammar(contents);
 let _x = 0;
 let _y = 0;
 let o = [];
-let pop = () => { return o.pop() };
 let code = {
-    pop: () => pop(),
+    pop: () => o.pop(),
     exch: () => { o = o.concat(o.splice(o.length-2).reverse()) },
     dup: () => o.push(o[o.length-1]),
-    copy: () => { let n = pop(); o = o.concat(o.slice(o.length-n)) },
-    index: () => { let n = pop(); o.push(o[o.length - n - 1]) },
-    // TODO: roll
+    copy: () => { let n = o.pop(); o = o.concat(o.slice(o.length-n)) },
+    index: () => { let n = o.pop(); o.push(o[o.length - n - 1]) },
+    // TODO: roll https://stackoverflow.com/q/15997536/279104
     clear: () => o.length = 0,
     count: () => o.push(o.length),
     
     // Canvas doesn't provide the ability to draw text along a
     // curve so we need to implement basic text another way and
     // just not support curved text yet.
-    show: () => c.fillText(pop(), _x, _y),
-    moveto: () => { _y = pop(); _x = pop(); c.moveTo(_x, _y) },
+    show: () => c.fillText(o.pop(), _x, _y),
+    moveto: () => { _y = o.pop(); _x = o.pop(); c.moveTo(_x, _y) },
     newpath: () => c.beginPath(),
     stroke: () => c.stroke(),
-    lineto: () => c.lineTo(pop(), pop()),
-    curveto: () => c.bezierCurveTo(pop(), pop(), pop(), pop(), pop(), pop()),
+    lineto: () => c.lineTo(o.pop(), o.pop()),
+    curveto: () => c.bezierCurveTo(o.pop(), o.pop(), o.pop(), o.pop(), o.pop(), o.pop()),
     closepath: () => c.closePath(),
 };
 

@@ -62,6 +62,7 @@ confirm('0 -33.1', [0, -33.1])
 
 semantics.addOperation('run', {
     number: e => o.push(e.eval()),
+    string: (a, b, c) => o.push(b.sourceString),
     operator: e => call(e),
 })
 
@@ -76,6 +77,9 @@ run('1 2 3 4 pop', [1, 2, 3])
 run('1 2 3 4 exch', [1, 2, 4, 3])
 run('1 2 3 4 dup', [1, 2, 3, 4, 4])
 run('1 2 3 4 3 copy', [1, 2, 3, 4, 2, 3, 4])
-run('1 2 3 4 3 index', [1, 2, 3, 4, 1])
+
+run('(a) (b) (c) (d) 0 index', ['a', 'b', 'c', 'd', 'd'])
+run('(a) (b) (c) (d) 3 index', ['a', 'b', 'c', 'd', 'a'])
+
 run('1 2 3 4 clear', [])
 run('1 1 1 1 count', [1, 1, 1, 1, 4])

@@ -2,7 +2,7 @@ Postscript {
   Program = Exp+
   Exp = PriExp | word | operator | string
   PriExp
-    = "-" PriExp -- neg
+    = "-" number -- neg
     | number
   number
     = digit* "." digit+  -- fract

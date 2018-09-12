@@ -59,7 +59,6 @@ semantics.addOperation('eval', {
 
 function run(unparsed, stack) {
     o.length = 0
-    //console.log(hexdump(unparsed))
     let m = parser.match(unparsed)
     if (m.succeeded()) {
 	semantics(m).run()

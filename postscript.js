@@ -17,6 +17,8 @@ let code = {
     clear: () => o.length = 0,
     count: () => o.push(o.length),
     mark: () => o.push('['),
+    cleartomark: () => { do { a = o.pop() } while (a != '[') },
+    counttomark: () => { o.push(o.length-o.lastIndexOf('[')-1) },
     
     // Canvas doesn't provide the ability to draw text along a
     // curve so we need to implement basic text another way and
@@ -97,4 +99,7 @@ run('1 2 3 4 clear', [])
 run('1 1 1 1 count', [1, 1, 1, 1, 4])
 
 run('1 2 3 4 mark', [1, 2, 3, 4, '['])
+run('1 2 3 4 mark 5 6 7 cleartomark', [1, 2, 3, 4])
+run('1 2 3 mark 5 6 7 counttomark', [1, 2, 3, '[', 5, 6, 7, 3])
+
 

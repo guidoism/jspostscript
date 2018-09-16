@@ -13,6 +13,7 @@ let code = {
     dup: () => o.push(o[o.length-1]),
     copy: () => { let n = o.pop(); o = o.concat(o.slice(o.length-n)) },
     index: () => { let n = o.pop(); o.push(o[o.length - n - 1]) },
+    //roll: () => {},
     clear: () => o.length = 0,
     count: () => o.push(o.length),
     
@@ -28,14 +29,21 @@ let code = {
     closepath: () => c.closePath(),
 };
 
-code['roll'] = function() {
-    let j = o.pop()
-    let n = o.pop()
-    console.log(`${j} and ${n}`)
-    let s = o.splice(o.length-n)
+function* pop(n) {
+    for (n; n>0; n--) yield o.pop()
+}
+
+// n slice j rotate
+
+function rotate(s, j) {
     if (j > 0) for (j; j>0; j--) s.unshift(s.pop())
     if (j < 0) for (j; j<0; j++) s.push(s.shift())
-    o = o.concat(s)
+    return s
+}
+
+code['roll'] = function() {
+    let [j, n] = pop(2)
+    o = o.concat(rotate(o.splice(o.length-n), j))
 }
 
 function call(e) {

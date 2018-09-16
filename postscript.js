@@ -35,7 +35,7 @@ function* pop(n) {
 
 code['roll'] = function() {
     let [j, n] = pop(2)
-    if (j < 0) o = o.concat(o.splice(-n, -j))
+    if (j < 0) o.splice(n, 0, ...o.splice(-n, -j))
     if (j > 0) o.splice(-n+j, 0, ...o.splice(-j))
 }
 

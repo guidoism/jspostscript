@@ -16,6 +16,7 @@ let code = {
     //roll: () => {},
     clear: () => o.length = 0,
     count: () => o.push(o.length),
+    mark: () => o.push('['),
     
     // Canvas doesn't provide the ability to draw text along a
     // curve so we need to implement basic text another way and
@@ -95,4 +96,5 @@ run('(a) (b) (c) (d) 3 index', ['a', 'b', 'c', 'd', 'a'])
 run('1 2 3 4 clear', [])
 run('1 1 1 1 count', [1, 1, 1, 1, 4])
 
+run('1 2 3 4 mark', [1, 2, 3, 4, '['])
 

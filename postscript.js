@@ -33,17 +33,8 @@ function* pop(n) {
     for (n; n>0; n--) yield o.pop()
 }
 
-// n slice j rotate
-
-function rotate(s, j) {
-    if (j > 0) for (j; j>0; j--) s.unshift(s.pop())
-    if (j < 0) for (j; j<0; j++) s.push(s.shift())
-    return s
-}
-
 code['roll'] = function() {
     let [j, n] = pop(2)
-    //o = o.concat(rotate(o.splice(-n), j))
     if (j < 0) o = o.concat(o.splice(-n, -j))
     if (j > 0) o.splice(-n+j, 0, ...o.splice(-j))
 }

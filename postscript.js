@@ -8,12 +8,17 @@ let _x = 0;
 let _y = 0;
 let o = [];
 let code = {
+    // Operand stack manipulation operators
     pop: () => o.pop(),
     exch: () => { o = o.concat(o.splice(o.length-2).reverse()) },
     dup: () => o.push(o[o.length-1]),
     copy: () => { let n = o.pop(); o = o.concat(o.slice(o.length-n)) },
     index: () => { let n = o.pop(); o.push(o[o.length - n - 1]) },
-    //roll: () => {},
+    roll: () => {
+	let [j, n] = pop(2)
+	if (j < 0) o.splice(n, 0, ...o.splice(-n, -j))
+	if (j > 0) o.splice(-n+j, 0, ...o.splice(-j))
+    },
     clear: () => o.length = 0,
     count: () => o.push(o.length),
     mark: () => o.push('['),
@@ -34,12 +39,6 @@ let code = {
 
 function* pop(n) {
     for (n; n>0; n--) yield o.pop()
-}
-
-code['roll'] = function() {
-    let [j, n] = pop(2)
-    if (j < 0) o.splice(n, 0, ...o.splice(-n, -j))
-    if (j > 0) o.splice(-n+j, 0, ...o.splice(-j))
 }
 
 function call(e) {

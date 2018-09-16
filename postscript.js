@@ -43,7 +43,9 @@ function rotate(s, j) {
 
 code['roll'] = function() {
     let [j, n] = pop(2)
-    o = o.concat(rotate(o.splice(o.length-n), j))
+    //o = o.concat(rotate(o.splice(-n), j))
+    if (j < 0) o = o.concat(o.splice(-n, -j))
+    if (j > 0) o.splice(-n+j, 0, ...o.splice(-j))
 }
 
 function call(e) {
@@ -89,9 +91,9 @@ semantics.addOperation('run', {
     operator: e => call(e),
 })
 
-run('(a) (b) (c) 3 1 roll', ['c', 'a', 'b'])
-run('(a) (b) (c) 3 0 roll', ['a', 'b', 'c'])
-run('(a) (b) (c) 3 -1 roll', ['b', 'c', 'a'])
+run('8 (a) (b) (c) 3 1 roll', [8, 'c', 'a', 'b'])
+run('8 (a) (b) (c) 3 0 roll', [8, 'a', 'b', 'c'])
+run('8 (a) (b) (c) 3 -1 roll', [8, 'b', 'c', 'a'])
 
 run('1 2 3 4 pop', [1, 2, 3])
 run('1 2 3 4 exch', [1, 2, 4, 3])

@@ -1,0 +1,28 @@
+systemdict begin
+
+/procs {
+  [ getprocesses {					% [process ...]
+      100 dict begin
+        { % id pri ess oss dss
+	  begin
+	    DictionaryStack length
+	    OperandStack length
+	    ExecutionStack length
+	    Priority
+	    currentdict 100 string cvs
+	    (\() search {
+		pop pop (,) search {
+		    3 1 roll pop pop
+		} if
+	    } if					% > proc d o e p s id
+	    (% Pri=% ES=% OS=% DS=%) sprintf
+	    currentdict
+	  end
+	  def
+	} forall
+      currentdict end
+    } forall
+  ]
+} def
+
+end % systemdict

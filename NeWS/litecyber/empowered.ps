@@ -1,0 +1,45 @@
+/PowerDict 100 dict def
+
+PowerDict begin
+
+/Adventure ColossalCave 1 get def
+/ArpaNet ArpaMap /BERK get def
+/PieMenu BackgroundMenu def
+/Sorted [
+  65 1 74 {
+    [ exch dup 64 sub 3 mul { dup } repeat pop ] cvas
+  } for
+] def
+
+/sort! {
+  //PowerDict /Sorted get
+  { newprocessgroup
+    currentprocess /ProcessName (Quicksort) put
+    { [ 1 index {
+          counttomark dup 2 mul random mul floor roll
+        } forall
+      ] 1 index copy
+      {gt} quicksort
+    } vexec
+  } fork
+} def
+
+/spin! {
+  (startspin) forkunix
+} def
+
+/mousee! {
+  (psh cyber/piemousee.ps) forkunix
+} def
+
+/flags! {
+  (psh cyber/flags) forkunix
+} def
+
+/colorwheel! {
+  (psh cyber/colorwheel) forkunix
+} def
+
+end
+
+PowerDict

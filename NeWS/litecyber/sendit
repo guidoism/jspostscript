@@ -1,0 +1,17 @@
+#!/bin/csh -f
+set to = $1
+set files = (README introduction piemenu.ps pullout.ps quickwin.ps textcan.ps overlay.ps pointer.ps mics.ps litecyber.ps distill.ps ps.ps scrap.ps cond.ps trace.ps doc.ps litecyber arpa.map advent.map)
+
+rm -f LIST
+foreach file ($files)
+  ls -l $file >> LIST
+  echo -n "sum = " >> LIST
+  sum $file >> LIST
+end
+mail -s "Contents of PSIBER distribution" $to < LIST
+sleep 5
+
+foreach file ($files)
+  mail -s "$file" $to < $file
+  sleep 2
+end

@@ -1,0 +1,595 @@
+%
+% This file is a product of Sun Microsystems, Inc. and is provided for
+% unrestricted use provided that this legend is included on all tape
+% media and as a part of the software program in whole or part.  Users
+% may copy or modify this file without charge, but are not authorized to
+% license or distribute it to anyone else except as part of a product
+% or program developed by the user.
+% 
+% THIS FILE IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
+% WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+% PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
+% 
+% This file is provided with no support and without any obligation on the
+% part of Sun Microsystems, Inc. to assist in its use, correction,
+% modification or enhancement.
+% 
+% SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
+% INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY THIS FILE
+% OR ANY PART THEREOF.
+% 
+% In no event will Sun Microsystems, Inc. be liable for any lost revenue
+% or profits or other special, indirect and consequential damages, even
+% if Sun has been advised of the possibility of such damages.
+% 
+% Sun Microsystems, Inc.
+% 2550 Garcia Avenue
+% Mountain View, California  94043
+%
+%
+%	colorwheel 22.2 89/12/20
+%
+%  Color wheel:
+%  Drag a window with a bunch of colors. The menu changes the colors.
+%  also shows off dynamic colors if the display supports them
+%
+%
+% colorwheel
+%
+/WheelBaseFrame /defaultclass ClassBaseFrame send []
+classbegin
+
+    /IconFrameClass {WheelIconFrame} def
+
+    /open { % bool => -
+	dup 
+	/open super send
+	/open /client self send send
+    } def
+
+classend def
+
+/WheelIconFrame /defaultclass ClassIconFrame send []
+classbegin
+
+    /path { % x y w h => -
+	ovalpath
+    } def
+
+classend def
+
+/ColorWindow ClassCanvas dictbegin
+
+    /vis null def				% our (dynamic) visual
+    /cmap null def				% our colormap
+    /segs null def				% our colormap segments
+
+    /saturation	0.9 def				% initial vlaues
+    /intensity	1.0 def
+    /nseg 36 def
+
+    /color? framebuffer /Color get def		% status flags
+    /rollproc null def
+    /wasspinning? false def
+    /dynamic? false def
+    /wasdynamic? false def
+    /dynocanvas null def
+
+    /WheelMenu null def
+    /colorclientmenu null def
+    /bwclientmenu null def
+    /segmentsmenu null def
+    /saturationmenu null def
+    /intensitymenu null def
+
+    /colorarray null def
+    /rollpos 0 def
+
+dictend classbegin
+
+    /PsuedoColor 3 def
+
+    /useenter? true def
+
+    /newobject {	% parent => [vis cmap cv] | [null null cv]
+	getvisual {
+	    exch			% vis parent
+	    /newobject super send	% vis instance
+	    exch dup createcolormap	% cv vis cmap
+	    3 -1 roll			% vis cmap cv
+	} {
+	    /newobject super send	% instance
+	    null null 3 -1 roll		% null null cv
+	} ifelse
+    } def
+
+    /newinit {	% {visual cmap} | null => -
+	/CreateMenu self send
+	dup null eq {
+	    pop			% wipe the null
+	    /dynamic? false def
+	    /wasdynamic? false def
+	    % if its monochrome, make the default menu the bw one
+	    color? not { 
+	        /WheelMenu bwclientmenu def
+	    } if
+	} { 
+	    % setup some vars
+	    /cmap exch def
+	    /vis exch def
+	    /dynocanvas /canvas self send vis cmap newcanvas def
+	    % create the colormap
+	    /makecmap self send
+	} ifelse
+    } def
+
+    /getvisual {	% - => vis true | false
+	false
+	framebuffer /VisualList get {
+	    dup /Class get		% false vis class
+	    PsuedoColor eq {
+		exch pop		% vis
+		true exit		% vis true
+	    } {
+		pop
+	    } ifelse
+	} forall
+    } def
+
+    /installcmap { % bool => -
+	dynamic? {
+	    cmap /Installed 3 -1 roll put
+	} {
+	    pop
+	} ifelse
+    } def
+
+
+    /MakeInterests	{
+	/MakeInterests super send
+
+	useenter? {
+	    Canvas soften null
+	    2 dict dup begin
+		/EnterEvent	/ClientEnter self soften buildsend def
+		/ExitEvent	/ClientExit self soften buildsend def
+	    end /new ClassInterest send
+	} if
+
+	MenuButton /ShowMenu BuildCanvasSend
+	/DownTransition /canvas self send soften eventmgrinterest
+    } def
+
+    useenter? {
+	/ClientEnter	{
+	    pop
+	    true /installcmap self send
+	} def
+	/ClientExit {
+	    % we don't want to take then Exit when the dyno canvas is mapped
+	    /Action get 2 ne {
+	        false /installcmap self send
+	    } if
+	} def
+    } if
+
+    % get the dynamic visual, create a colormap and get all its cells
+    /makecmap {
+%	/segs cmap cmap /Visual get /Size get 0 createcolorsegment def
+	/segs cmap nseg 0 createcolorsegment def
+    } def
+
+    /fillcmap {
+	color? {				% fill with HSB if color
+	  /tarray [
+	    0 1 nseg 1 sub {
+	        dup				% i i
+	        segs exch get			% i segment
+	        dup /Slot get			% i segment slot
+	        3 2 roll nseg div		% make hue relative to cmap size
+	        saturation intensity hsbcolor
+		dup 4 1 roll
+	        putcolor			% store color into slot
+	    } for
+	  ] def
+	} {
+	  /tarray [
+	    0 1 nseg 1 sub {			% else use a gray ramp
+		dup
+	        segs exch get			% i segment
+	        dup /Slot get			% i segment slot
+	        3 2 roll 			% make gray level
+		nseg div			% relative to size
+	        dup dup rgbcolor
+		dup 4 1 roll
+	        putcolor			% store color into slot
+	    } for
+	  ] def
+	} ifelse
+	/colorarray [ tarray aload pop tarray aload pop ] def
+    } def
+
+    % rotates the colormap - moves each color to the slot above it
+    /rollmap {
+	cmap 0 colorarray rollpos nseg getinterval putcolor
+	/rollpos rollpos 1 add def
+	rollpos nseg eq {
+	    /rollpos 0 def
+	} if
+    } def
+
+    % turn colormap rotation on & off
+    /togglerollmap {
+	rollproc null ne {
+	    rollproc killprocess
+	    /rollproc null def
+	    /wasspinning? false def
+	}{
+	    dynamic? {
+		/rollproc { { rollmap pause } loop } fork def
+		/wasspinning? true def
+	    } if
+	} ifelse
+	vis null ne {
+	    buildmenus		% update menus
+	} if
+    } def
+
+    % draw the colorwheel
+    /colorwheel {
+	gsave
+	dynamic? {
+	    dynocanvas setcanvas
+	    dynocanvas /Mapped true put
+	} if
+	1 fillcanvas
+	clippath pathbbox scale pop pop
+
+	/segang 360 nseg div def
+
+	0 1 nseg 1 sub {
+	    dynamic? {
+	        dup setpixel
+	    } {
+		dup nseg div
+		color? {
+		    saturation intensity sethsbcolor
+		} {
+		    setgray 
+		} ifelse
+	    } ifelse
+	    segang mul /ta exch def
+	    .5 .5 moveto
+	    .5 .5 .5 ta ta segang add arc
+	    closepath fill pause
+	} for
+	grestore
+    } def
+
+    /colorlabel {
+	color? { 
+	    intensity saturation nseg (% Colors; Saturation %, Intensity %)
+	} { 
+	    nseg (% Grey Values)
+	} ifelse
+	sprintf () /setfooter /Parent self send send
+    } def
+
+    /setsegs {
+	/segs null def
+	/rollpos 0 def			% reset roll position
+	/valuething exch send cvr /nseg exch def
+	cmap null ne {
+	    /makecmap self send
+	} if
+	/paint self send
+    } def
+
+    /setintensity {
+	/valuething exch send cvr /intensity exch def
+	/paint self send
+    } def
+
+    /setsaturation {
+	/valuething exch send cvr /saturation exch def
+	/paint self send
+    } def
+
+    /changedynamic {
+	dynamic? {
+	    /dynamic? false def
+	    /wasdynamic? false def
+	    % kill off spin
+	    rollproc null ne {
+	        rollproc killprocess
+	        /wasspinning? false def
+	        /rollproc null def
+	    } if
+	    dynocanvas null ne {
+		dynocanvas /Mapped false put
+	    } if
+	} {
+	    /dynamic? true def
+	    /wasdynamic? true def
+	} ifelse
+	/paint self send
+    } def
+
+    /changecolor {
+	color? {
+	    /color? false def 
+	    /WheelMenu bwclientmenu def
+	} { 
+	    /color? true def 
+	    /WheelMenu colorclientmenu def
+	} ifelse
+	/paint self send
+    } def
+
+%%% REMIND use /disable if possible
+
+    % fixes menus to reflect current parameters
+    /buildmenus {
+	dynamic? {
+	    % change 'Dynamic' to 'Static'
+	    (Dynamic) /searchthing colorclientmenu send {
+		(Static) null	{ pop /changedynamic } self soften buildsend
+		/change colorclientmenu send
+	    } {
+		(Static) /searchthing colorclientmenu send not {
+		    /itemcount colorclientmenu send
+		    (Static) null { pop /changedynamic } self soften buildsend
+		    /insert colorclientmenu send
+		} if
+	    } ifelse
+	    (Dynamic) /searchthing bwclientmenu send {
+		(Static) null { pop /changedynamic } self soften buildsend
+		/change bwclientmenu send
+	    } {
+		(Static) /searchthing bwclientmenu send not {
+		    /itemcount bwclientmenu send
+		    (Static) null { pop /changedynamic } self soften buildsend
+		    /insert bwclientmenu send
+		} if
+	    } ifelse
+
+	    % adjust menus for spinning
+	    rollproc null eq {
+		% change or insert Spin menu
+		(Stop Spinning) /searchthing colorclientmenu send {
+		    (Spin) null	 { pop /togglerollmap } self soften buildsend
+		    /change colorclientmenu send
+		} {
+		    (Spin) /searchthing colorclientmenu send not {
+			/itemcount colorclientmenu send
+			(Spin) null { pop /togglerollmap } self soften buildsend
+			/insert colorclientmenu send
+		    } if
+		} ifelse
+		(Stop Spinning) /searchthing bwclientmenu send {
+		    (Spin) null { pop /togglerollmap } self soften buildsend
+		    /change bwclientmenu send
+		} {
+		    (Spin) /searchthing bwclientmenu send not {
+			/itemcount bwclientmenu send
+			(Spin) null { pop /togglerollmap } self soften buildsend
+			/insert bwclientmenu send
+		    } if
+		} ifelse
+	    } {
+		% change or insert Spin menu
+		(Spin) /searchthing colorclientmenu send {
+		    (Stop Spinning) null { pop /togglerollmap } self soften buildsend
+		    /change colorclientmenu send
+		} {
+		    (Stop Spinning) /searchthing colorclientmenu send not {
+			/itemcount colorclientmenu send
+			(Stop Spinning) null { pop /togglerollmap } self soften buildsend
+			/insert colorclientmenu send
+		    } if
+		} ifelse
+		(Spin) /searchthing bwclientmenu send {
+		    (Stop Spinning) null { pop /togglerollmap } self soften buildsend
+		    /change bwclientmenu send
+		} {
+		    (Stop Spinning) /searchthing bwclientmenu send not {
+			/itemcount bwclientmenu send
+			(Stop Spinning) null { pop /togglerollmap } self soften buildsend
+			/insert bwclientmenu send
+		    } if
+		} ifelse
+	    } ifelse
+	} {
+	    % change 'Static' to 'Dynamic'
+	    (Static) /searchthing colorclientmenu send {
+		(Dynamic) null { pop /changedynamic } self soften buildsend
+		/change colorclientmenu send
+	    } {
+		(Dynamic) /searchthing colorclientmenu send not {
+		    /itemcount colorclientmenu send
+		    (Dynamic) null { pop /changedynamic } self soften buildsend
+		    /insert colorclientmenu send
+		} if
+	    } ifelse
+
+	    (Static) /searchthing bwclientmenu send {
+		(Dynamic) null { pop /changedynamic } self soften buildsend
+		/change bwclientmenu send
+	    } {
+		(Dynamic) /searchthing bwclientmenu send not {
+		    /itemcount bwclientmenu send
+		    (Dynamic) null { pop /changedynamic } self soften buildsend
+		    /insert bwclientmenu send
+		} if
+	    } ifelse
+
+	    % clobber all spin items
+	    (Spin) /searchthing colorclientmenu send {
+		/delete colorclientmenu send
+	    } if
+	    (Spin) /searchthing bwclientmenu send {
+		/delete bwclientmenu send
+	    } if
+	    (Stop Spinning) /searchthing colorclientmenu send {
+		/delete colorclientmenu send
+	    } if
+	    (Stop Spinning) /searchthing bwclientmenu send {
+		/delete bwclientmenu send
+	    } if
+	} ifelse
+    } def
+
+    /PaintCanvas {
+	togglerollmap
+	dynamic? {
+	    fillcmap
+	    % reshape dynocanvas to the proper size
+	    gsave
+	        dynocanvas /Parent get setcanvas
+		clippath pathbbox
+		dynocanvas reshapecanvas
+	    grestore
+	} if
+	colorwheel
+	colorlabel
+	togglerollmap		% also updates menus
+    } def
+
+    % icon always uses static colormap, and suspends rotation
+    /open {
+	{
+	    wasspinning? {
+		/rollproc { { rollmap pause } loop } fork def
+	    } if
+	    wasdynamic? {
+		/dynamic? true def
+	    } if
+	} {
+	    wasspinning? {
+		rollproc killprocess
+		/rollproc null def
+	    } if
+	    wasdynamic? {
+		/dynamic? false def
+	    } if
+	} ifelse
+    } def
+
+    % menus
+
+    /ShowMenu	{	% event => -
+	/showat WheelMenu send
+    } def
+
+    /CreateMenu	{
+        /segmentsmenu
+            [(6) (12) (24) (36) (64) (128) (256)]
+            null /setsegs self soften buildsend
+            framebuffer /newdefault ClassMenu send def
+
+        /intensitymenu
+            [(.1) (.2) (.25) (.3) (.4) (.5) (.6) (.7) (.75) (.8) (.9) (1.0)]
+            null /setintensity self soften buildsend
+            framebuffer /newdefault ClassMenu send def
+
+        /saturationmenu
+            [(.1) (.2) (.25) (.3) (.4) (.5) (.6) (.7) (.75) (.8) (.9) (1.0)]
+            null /setsaturation self soften buildsend
+            framebuffer /newdefault ClassMenu send def
+
+        /colorclientmenu [
+	    (Saturation)	saturationmenu null
+	    (Intensity)		intensitymenu null
+	    (Segments)		segmentsmenu null
+	    (Black & White)	null { pop /changecolor } self soften buildsend
+        ] 
+        framebuffer /newdefault ClassMenu send def
+        (Color Wheel) /setlabel colorclientmenu send
+    
+        /bwclientmenu [
+	    (Segments)		segmentsmenu null
+	    (Color)		null { pop /changecolor } self soften buildsend
+        ]
+        framebuffer /newdefault ClassMenu send def
+        (Gray Wheel) /setlabel bwclientmenu send
+
+        /WheelMenu colorclientmenu def
+    } def
+
+    /destroy {
+	/destroy WheelMenu send
+	self /WheelMenu null put
+
+	/destroy colorclientmenu send
+	self /colorclientmenu null put
+
+	/destroy bwclientmenu send
+	self /bwclientmenu null put
+
+	/destroy segmentsmenu send
+	self /segmentsmenu null put
+
+	/destroy saturationmenu send
+	self /saturationmenu null put
+
+	/destroy intensitymenu send
+	self /intensitymenu null put
+
+	rollproc null ne {
+	    rollproc killprocess
+	    /rollproc null def
+	} if
+
+	% make sure we return the cmap to normal
+	dynamic? {
+	    cmap /Installed false put
+	} if
+	/dynocanvas null def
+	/destroy super send
+    } def
+
+    /minsize { % - => w h
+	/minsize super send
+	64 max exch
+	64 max exch
+    } def
+
+    /preferredsize { % - => w h
+	/preferredsize super send
+	256 max exch
+	256 max exch
+    } def
+
+classend def
+
+/win [ColorWindow] [] framebuffer /new WheelBaseFrame send def
+
+{
+  growabledict begin
+    gsave
+	clippath pathbbox scale pop pop
+
+	/nseg 36 def
+	/segang 360 nseg div def
+
+	0 1 nseg 1 sub {
+	    dup nseg div
+	    0.9 1.0 sethsbcolor
+	    segang mul /ta exch def
+	    .5 .5 moveto
+	    .5 .5 .5 ta ta segang add arc
+	    closepath fill pause
+	} for
+    grestore
+  end
+} /seticon win send
+
+(Color Wheel) /setlabel win send
+null /seticonlabel win send
+
+/place win send
+/activate win send
+/map win send
+
+newprocessgroup
+currentfile closefile

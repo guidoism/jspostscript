@@ -1,0 +1,38 @@
+-rw-r--r--  1 hopkins       725 Jun 28  1990 README
+sum = 21889     1
+-rw-r--r--  1 hopkins     30173 Jun 28  1990 introduction
+sum = 55896    30
+-rw-r--r--  1 hopkins     34791 Aug  1 04:15 piemenu.ps
+sum = 27735    34
+-rw-r--r--  1 hopkins      5607 Jun 28  1990 pullout.ps
+sum = 63872     6
+-rw-r--r--  1 hopkins      8367 Jul  3  1990 quickwin.ps
+sum = 00185     9
+-rw-r--r--  1 hopkins     83337 Jul 31 13:46 textcan.ps
+sum = 58311    82
+-rw-r--r--  1 hopkins     14041 Jun 28  1990 overlay.ps
+sum = 18527    14
+-rw-r--r--  1 hopkins     13389 Jun 28  1990 pointer.ps
+sum = 65079    14
+-rw-r--r--  1 hopkins     28653 Aug 25 03:59 mics.ps
+sum = 08811    28
+-rw-rw-r--  1 hopkins    190488 Jan  6 19:53 litecyber.ps
+sum = 55072   187
+-rw-rw-r--  1 hopkins     10053 Oct  5 05:54 distill.ps
+sum = 08849    10
+-rw-r--r--  1 hopkins     17882 Jun 28  1990 ps.ps
+sum = 47874    18
+-rw-r--r--  1 hopkins     34241 Jun 28  1990 scrap.ps
+sum = 60370    34
+-rw-r--r--  1 hopkins      1749 Jun 28  1990 cond.ps
+sum = 35915     2
+-rw-r--r--  1 hopkins     27159 Jun 28  1990 trace.ps
+sum = 33518    27
+-rw-r--r--  1 hopkins     12549 Jun 28  1990 doc.ps
+sum = 63139    13
+-rwxr-xr-x  1 hopkins        77 Jun 28  1990 litecyber
+sum = 47726     1
+-rw-r--r--  1 hopkins      6964 Jun 28  1990 arpa.map
+sum = 52241     7
+-rw-r--r--  1 hopkins     38413 Jun 28  1990 advent.map
+sum = 47574    38

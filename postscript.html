@@ -1,0 +1,75 @@
+<style type="text/css" media="screen">
+ #editor { 
+     position: absolute;
+     top: 600;
+     right: 0;
+     bottom: 0;
+     left: 0;
+ }
+</style>
+
+<canvas id="canvas" width="700" height="500"></canvas>
+<div id="editor2">    5 200 moveto
+    (The fox went to find the fjord.) show
+    newpath 0 0 moveto
+    0 37.79527 56.6929 -37.79527 56.6929 0 curveto
+    56.6929 37.79527 0 -37.79527 0 0 curveto closepath stroke
+    newpath
+    1  1 moveto
+    91  1 lineto
+    91 91 lineto
+    1 91 lineto
+    1  1 lineto
+    stroke</div>
+
+<div id="editor">1</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/voca/1.4.0/voca.min.js"></script>
+<script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://unpkg.com/ohm-js@0.13.1/dist/ohm.min.js"></script>
+<script src="postscript.js"></script>
+
+<script>
+ var canvas = document.getElementById('canvas');
+ var c = canvas.getContext('2d');
+
+ if (window.devicePixelRatio) {
+     var canvasWidth = $(canvas).attr('width');
+     var canvasHeight = $(canvas).attr('height');
+     var canvasCssWidth = canvasWidth;
+     var canvasCssHeight = canvasHeight;
+     $(canvas).attr('width', canvasWidth * window.devicePixelRatio);
+     $(canvas).attr('height', canvasHeight * window.devicePixelRatio);
+     $(canvas).css('width', canvasCssWidth);
+     $(canvas).css('height', canvasCssHeight);
+     c.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+     // Trying to change to Cartesian coordinates, the following works
+     // except that the text is upside down and reverse:
+     // 
+     // c.transform(1, 0, 0, -1, 0, canvas.height)
+ }
+
+ $( document ).ready(function() {
+     c.font = '48px Minion Pro';
+
+     let editor = ace.edit("editor");
+     editor.setTheme("ace/theme/solarized_dark");
+     editor.session.setMode("ace/mode/forth");
+     editor.commands.addCommand({
+	 name: 'Run',
+	 bindKey: {win: 'Ctrl-R',  mac: 'Ctrl-R'},
+	 exec: function(editor) {
+ 	     let lines = editor.session.getDocument().getAllLines();
+	     lines.map(s => semantics(parser.match(s)).eval())
+	 },
+	 readOnly: true
+     });
+     let lines = editor.session.getDocument().getAllLines();
+     lines.map(s => semantics(parser.match(s)).eval())
+
+ });
+</script>
+
+<script>

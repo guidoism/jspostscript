@@ -1,0 +1,2 @@
+"moveto": "moveTo",
+"show": "fillText(pop(), x, y)",
